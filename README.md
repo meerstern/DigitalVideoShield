@@ -36,6 +36,7 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
  <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/img3.JPG" width="360">
 
 ## 注意点
+  * Arduinoピンヘッダは別売です。    
   * 映像出力コネクタはHDMIコネクタですが、出力はDVI出力となります。
   * HDCP、HDMIコネクタを介した音声出力、ハイビジョン出力には対応していません。  
   * 全てのHDMI/DVI端子を有するディスプレイでの表示は保証できません。  
