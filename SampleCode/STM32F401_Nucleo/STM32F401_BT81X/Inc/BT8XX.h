@@ -5,7 +5,7 @@
  * Released under the MIT license 				   *
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
- * 												   *
+ * 19/02/27 v1.1 Fix initialization stability      *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
@@ -491,7 +491,7 @@
 
 #ifdef EVE_RESOLUTION_WVGA
 	#define USR_HCYCLE		928
-	#define USR_HOFFSET		28
+	#define USR_HOFFSET		88
 	#define USR_HSYNC0		0
 	#define	USR_HSYNC1		48
 	#define USR_VCYCLE		525

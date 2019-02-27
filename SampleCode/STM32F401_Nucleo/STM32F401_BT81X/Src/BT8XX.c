@@ -5,7 +5,7 @@
  * Released under the MIT license 				   *
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
- * 												   *
+ * 19/02/27 v1.1 Fix initialization stability      *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "BT8XX.h"
@@ -69,6 +69,20 @@ void EveSetResolution(){
 
 	EveWriteData16(REG_GPIOX_DIR,	0xFFFF);
 	EveWriteData16(REG_GPIOX,	0xFFFF);
+
+	//Clear Dispaly
+	EveWriteData32(RAM_DL+0,	CLEAR_COLOR_RGB(255,255,255));
+	EveWriteData32(RAM_DL+4,	CLEAR(1,1,1));
+	EveWriteData32(RAM_DL+8,	DISPLAY());
+	EveWriteData32(REG_CMD_WRITE,12);
+
+	//Display swap
+	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
+
+
+	//LCD visible
+	EveWriteData8(REG_PCLK, 2);
+	HAL_Delay(300);
 }
 
 
@@ -76,34 +90,32 @@ void EveSetResolution(){
 void EveDemo(){
 
 
-
-	//LCD visible
-	EveWriteData8(REG_PCLK, 2);
-
+	//Load Logo
 	EveWriteData32(RAM_CMD+0,	CMD_LOGO);
 	EveWriteData32(REG_CMD_WRITE,4) ;
 	HAL_Delay(1);
 	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
 	HAL_Delay(2000);
 
-
-
-	EveWriteData32(RAM_DL + 0, CLEAR(1, 1, 1)); // clear screen
-	EveWriteData32(RAM_DL + 4, BEGIN(BITMAPS)); // start drawing bitmaps
-	EveWriteData32(RAM_DL + 8, VERTEX2II(220, 110, 31, 'H')); // ascii H
-	EveWriteData32(RAM_DL + 12,VERTEX2II(248, 110, 31, 'E')); // ascii E
-	EveWriteData32(RAM_DL + 16, VERTEX2II(270, 110, 31, 'L')); // ascii L
-	EveWriteData32(RAM_DL + 20, VERTEX2II(299, 110, 31, 'L')); // ascii L
-	EveWriteData32(RAM_DL + 24, VERTEX2II(329, 110, 31, 'O')); // ascii O
-	EveWriteData32(RAM_DL + 28, END());
-	EveWriteData32(RAM_DL + 32, COLOR_RGB(160, 22, 22)); // change colour to red
-	EveWriteData32(RAM_DL + 36, POINT_SIZE(420)); // set point size to 20 pixels in radius
-	EveWriteData32(RAM_DL + 40, BEGIN(POINTS)); // start drawing points
-	EveWriteData32(RAM_DL + 44, VERTEX2II(192, 133, 0, 0)); // red point
-	EveWriteData32(RAM_DL + 48, END());
-	EveWriteData32(RAM_DL + 52, DISPLAY()); // display the image
+	//Display Hello
+	EveWriteData32(RAM_DL+0,   CLEAR_COLOR_RGB(255,255,255));
+	EveWriteData32(RAM_DL + 4, CLEAR(1, 1, 1)); // clear screen
+	EveWriteData32(RAM_DL + 8, COLOR_RGB(1, 1, 1)); // change colour to red
+	EveWriteData32(RAM_DL + 12, BEGIN(BITMAPS)); // start drawing bitmaps
+	EveWriteData32(RAM_DL + 16, VERTEX2II(220, 110, 31, 'H')); // ascii H
+	EveWriteData32(RAM_DL + 20, VERTEX2II(248, 110, 31, 'E')); // ascii E
+	EveWriteData32(RAM_DL + 24, VERTEX2II(272, 110, 31, 'L')); // ascii L
+	EveWriteData32(RAM_DL + 28, VERTEX2II(299, 110, 31, 'L')); // ascii L
+	EveWriteData32(RAM_DL + 32, VERTEX2II(326, 110, 31, 'O')); // ascii O
+	EveWriteData32(RAM_DL + 36, END());
+	EveWriteData32(RAM_DL + 40, COLOR_RGB(255, 0, 0)); // change colour to red
+	EveWriteData32(RAM_DL + 44, POINT_SIZE(320)); // set point size to 20 pixels in radius
+	EveWriteData32(RAM_DL + 48, BEGIN(POINTS)); // start drawing points
+	EveWriteData32(RAM_DL + 52, VERTEX2II(192, 133, 0, 0)); // red point
+	EveWriteData32(RAM_DL + 56, END());
+	EveWriteData32(RAM_DL + 60, DISPLAY()); // display the image
 	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
-
+	HAL_Delay(3000);
 
 }
 
