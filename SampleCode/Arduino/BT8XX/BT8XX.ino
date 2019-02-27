@@ -5,7 +5,7 @@
  * Released under the MIT license                  *
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
- *                                                 *
+ * 19/02/27 v1.1 Fix initialization stability      *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include <Arduino.h>    
@@ -39,10 +39,8 @@ void setup()
 
 	
   	cmdWrite(CLKEXT);    
-  	delay(5);        
   	cmdWrite(CLK36M);      
-  	delay(5);   
-  	cmdWrite(ACTIVE);     
+   	cmdWrite(ACTIVE);     
   	delay(300);     
 
 	
@@ -58,7 +56,7 @@ void setup()
     if(cnt<100)Serial.println("EVE Found!!");
 
     
-    wr32(REG_FREQUENCY,0x3938700);   // Set CPU Frequency
+   
     wr32(RAM_CMD+0, CMD_FLASHDETACH);
     wr32(REG_CMD_WRITE,4) ;
   
@@ -68,11 +66,13 @@ void setup()
   		if(cnt>100){
   			Serial.print("EVE NOT Active!! :");
   			Serial.println(rd16(REG_CPURESET));
-  			delay(100);
+  			delay(200);
   		}
   	}
 	  if(cnt<100)Serial.println("EVE Active!!");
-		
+
+    wr32(REG_FREQUENCY,0x3938700);   // Set CPU Frequency
+    
   	// Set Resolution
   	wr16(REG_HCYCLE,	USR_HCYCLE);
   	wr16(REG_HOFFSET,	USR_HOFFSET);
@@ -92,9 +92,21 @@ void setup()
     wr16(REG_GPIOX_DIR, 0xFFFF);
     wr16(REG_GPIOX, 0xFFFF);
   	
-  	wr8(REG_PCLK, 2);				//LCD Visible
+  	//Clear Dispaly
+    wr32(RAM_DL+0,  CLEAR_COLOR_RGB(255,255,255));
+    wr32(RAM_DL+4,  CLEAR(1,1,1));
+    wr32(RAM_DL+8,  DISPLAY());
+    wr32(REG_CMD_WRITE,12);
+
+    //Display swap
+    wr8(REG_DLSWAP, DLSWAP_FRAME);
+
+
+    //LCD visible
+    wr8(REG_PCLK, 2);
+    delay(300);
   
-      Serial.println("Hello");
+    Serial.println("Hello");
 }
 
 
@@ -104,29 +116,30 @@ void loop()
   	//Disp Logo
   	wr32(RAM_CMD+0,	CMD_LOGO);
   	wr32(REG_CMD_WRITE,4) ;
-  	delay(10);
+  	delay(1);
   	while(rd16(REG_CMD_WRITE) != rd16(REG_CMD_READ));
   	delay(2000);
 	
 	
-	
-  	//Disp Msg
-  	wr32(RAM_DL + 0, CLEAR(1, 1, 1)); // clear screen
-  	wr32(RAM_DL + 4, BEGIN(BITMAPS)); // start drawing bitmaps
-  	wr32(RAM_DL + 8, VERTEX2II(220, 110, 31, 'H')); // ascii H
-  	wr32(RAM_DL + 12,VERTEX2II(248, 110, 31, 'E')); // ascii E
-  	wr32(RAM_DL + 16, VERTEX2II(270, 110, 31, 'L')); // ascii L
-  	wr32(RAM_DL + 20, VERTEX2II(299, 110, 31, 'L')); // ascii L
-  	wr32(RAM_DL + 24, VERTEX2II(329, 110, 31, 'O')); // ascii O
-  	wr32(RAM_DL + 28, END());
-  	wr32(RAM_DL + 32, COLOR_RGB(160, 22, 22)); // change colour to red
-  	wr32(RAM_DL + 36, POINT_SIZE(420)); // set point size to 20 pixels in radius
-  	wr32(RAM_DL + 40, BEGIN(POINTS)); // start drawing points
-  	wr32(RAM_DL + 44, VERTEX2II(192, 133, 0, 0)); // red point
-  	wr32(RAM_DL + 48, END());
-  	wr32(RAM_DL + 52, DISPLAY()); // display the image
-  	wr8(REG_DLSWAP, DLSWAP_FRAME);
-  	delay(2000);
+    //Display Hello
+    wr32(RAM_DL+0,   CLEAR_COLOR_RGB(255,255,255));
+    wr32(RAM_DL + 4, CLEAR(1, 1, 1)); // clear screen
+    wr32(RAM_DL + 8, COLOR_RGB(1, 1, 1)); // change colour to red
+    wr32(RAM_DL + 12, BEGIN(BITMAPS)); // start drawing bitmaps
+    wr32(RAM_DL + 16, VERTEX2II(220, 110, 31, 'H')); // ascii H
+    wr32(RAM_DL + 20, VERTEX2II(248, 110, 31, 'E')); // ascii E
+    wr32(RAM_DL + 24, VERTEX2II(272, 110, 31, 'L')); // ascii L
+    wr32(RAM_DL + 28, VERTEX2II(299, 110, 31, 'L')); // ascii L
+    wr32(RAM_DL + 32, VERTEX2II(326, 110, 31, 'O')); // ascii O
+    wr32(RAM_DL + 36, END());
+    wr32(RAM_DL + 40, COLOR_RGB(0, 0, 255)); // change colour to red
+    wr32(RAM_DL + 44, POINT_SIZE(320)); // set point size to 20 pixels in radius
+    wr32(RAM_DL + 48, BEGIN(POINTS)); // start drawing points
+    wr32(RAM_DL + 52, VERTEX2II(192, 133, 0, 0)); // red point
+    wr32(RAM_DL + 56, END());
+    wr32(RAM_DL + 60, DISPLAY()); // display the image
+    wr8(REG_DLSWAP, DLSWAP_FRAME);
+    HAL_Delay(3000);
 
 
 }
