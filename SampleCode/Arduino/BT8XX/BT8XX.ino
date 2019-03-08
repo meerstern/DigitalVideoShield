@@ -103,7 +103,7 @@ void setup()
 
 
     //LCD visible
-    wr8(REG_PCLK, 2);
+    wr8(REG_PCLK, USR_PCLK);
     delay(300);
   
     Serial.println("Hello");
