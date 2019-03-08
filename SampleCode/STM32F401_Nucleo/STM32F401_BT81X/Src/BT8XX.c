@@ -81,7 +81,7 @@ void EveSetResolution(){
 
 
 	//LCD visible
-	EveWriteData8(REG_PCLK, 2);
+	EveWriteData8(REG_PCLK, USR_PCLK);
 	HAL_Delay(300);
 }
 
