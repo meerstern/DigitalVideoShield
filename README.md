@@ -13,6 +13,8 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
   * 最大解像度は800x600です。  
   * 128MbitのNOR Flash W25Q128を搭載しており、フォントや画像といった任意のデータを保存可能です。  
   * microSDスロットを搭載しています。  
+  * BT816のGPIOやタッチパネルポート等のIOは基板上のテストポイントからアクセス可能です。  
+  
   
 ## ピン配列
 
@@ -40,9 +42,10 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
 
 ## 注意点
   * Arduinoピンヘッダは別売です。    
-  * 映像出力コネクタはHDMIコネクタですが、出力はDVI出力となります。
+  * 映像出力コネクタはHDMIコネクタですが、出力はDVI出力となります。  
   * HDCP機能、HDMIコネクタを介した音声出力、ハイビジョン出力には対応していません。  
   * 全てのHDMI/DVI端子を有するディスプレイでの表示は保証できません。  
+  * 低解像度に対応していないディスプレイでは正しく表示されない場合があります。  
   
 機能詳細については[BT816][1]を参照ください。  
 
