@@ -11,6 +11,7 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
   * バッファIC搭載のSPI通信ポートは5V耐圧のため、ArduinoUNOにも対応しています。  
   * 電源はArduinoピンから5Vおよび3.3Vを使用します。  
   * 最大解像度は800x600です。  
+  * PCLK最大60MHz、24bitフルカラー(RGB888)に対応しています。  
   * 128MbitのNOR Flash W25Q128を搭載しており、フォントや画像といった任意のデータを保存可能です。  
   * microSDスロットを搭載しています。  
   * BT816のGPIOやタッチパネルポート等のIOは基板上のテストポイントからアクセス可能です。  
