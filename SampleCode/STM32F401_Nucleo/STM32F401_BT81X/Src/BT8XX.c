@@ -10,6 +10,9 @@
 
 #include "BT8XX.h"
 
+uint16_t eve_cmd_fifo;
+
+
 void EveInit(){
 
 	EVE_CS_1();
@@ -24,7 +27,6 @@ void EveInit(){
 	EveWriteCmd(CLK36M);
 	EveWriteCmd(ACTIVE);
 	HAL_Delay(300);
-
 
 }
 
@@ -82,7 +84,7 @@ void EveSetResolution(){
 
 	//LCD visible
 	EveWriteData8(REG_PCLK, USR_PCLK);
-	HAL_Delay(300);
+	HAL_Delay(800);
 }
 
 
@@ -92,6 +94,7 @@ void EveDemo(){
 
 	//Load Logo
 	EveWriteData32(RAM_CMD+0,	CMD_LOGO);
+	//EveWriteData32(RAM_CMD+4,0) ;
 	EveWriteData32(REG_CMD_WRITE,4) ;
 	HAL_Delay(1);
 	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
@@ -116,6 +119,157 @@ void EveDemo(){
 	EveWriteData32(RAM_DL + 60, DISPLAY()); // display the image
 	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
 	HAL_Delay(3000);
+
+}
+
+
+void EveFlashTest(){
+
+	uint8_t rdat[256];
+	uint8_t wdat[256];
+
+	EveFlashEraseAll();
+//	EveFlashReadArray(0, 0, 256, rdat);
+//	printf("Flash Read Data0: %d %d %d\n\r",rdat[0],rdat[1],rdat[2]);
+	wdat[0]=1;
+	wdat[1]=2;
+	wdat[2]=3;
+	EveFlashWrite(0, wdat, 256);
+	printf("Flash Data Written\n\r");
+	EveFlashReadArray(0, 0, 256, rdat);
+	printf("Flash Read Data1: %d %d %d\n\r",rdat[0],rdat[1],rdat[2]);
+
+}
+
+void EveReadMemory (uint32_t addr, uint8_t *buffer, uint32_t len){
+
+	uint8_t wdata[4];
+
+	wdata[0] = addr >> 16;
+	wdata[1] = (addr & 0xFF00) >> 8;
+	wdata[2] = addr & 0xFF;
+	wdata[3] = 0;
+
+	EVE_CS_0();
+	HAL_SPI_Transmit (&EVE_SPI_HANDLE, wdata, sizeof(wdata), HAL_MAX_DELAY);
+	HAL_SPI_Receive (&EVE_SPI_HANDLE, (uint8_t*)buffer, len, HAL_MAX_DELAY);
+	EVE_CS_1();
+}
+
+void EveFlashReadArray(uint32_t dest, uint32_t addr, uint32_t num, uint8_t *data){
+
+	EveFlashRead(dest, addr, num);
+	EveWaitCmdFifoEmpty();
+	EveReadMemory(dest, data, num);
+	//EveWaitCmdFifoEmpty();
+}
+
+
+uint8_t EveFlashReadState(){
+
+	//BASIC:2, DETACHED:1, FULL:3, INIT:0
+	return EveReadData8(REG_FLASH_STATUS);
+}
+
+void EveCheckFlashState(){
+
+	uint8_t res=EveFlashReadState();
+	if(res==0)		printf("Flash [INIT] State\n\r");
+	else if(res==1) printf("Flash [Detached] State\n\r");
+	else if(res==2) printf("Flash [Basic] State\n\r");
+	else if(res==3) printf("Flash [Full] State\n\r");
+}
+
+
+void EveFlashEraseAll(){
+
+	EveSendCmd(CMD_FLASHERASE);
+	//EveWaitCmdFifoEmpty();
+
+}
+
+
+void EveUpdateCmdFifo(uint32_t count){
+
+	eve_cmd_fifo  = (eve_cmd_fifo + count) & 4095;
+	eve_cmd_fifo = (eve_cmd_fifo + 3) & 0xFFC;
+	EveWriteData16(REG_CMD_WRITE,eve_cmd_fifo);
+}
+
+
+void EveWaitCmdFifoEmpty(){
+
+	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
+	eve_cmd_fifo =EveReadData16(REG_CMD_WRITE);
+
+}
+
+uint16_t EveGetCmdFifoSpace(){
+
+	uint16_t fullness,val;
+
+	fullness = (eve_cmd_fifo-EveReadData16(REG_CMD_READ))&4095;
+	val = (4096 - 4) - fullness;
+
+	return val;
+
+}
+
+void EveCheckCmdBuffer(uint32_t cnt){
+
+	uint16_t space;
+	do{
+		space = EveGetCmdFifoSpace();
+	}while(space < cnt);
+}
+
+
+void EveSendCmd (uint32_t cmd)
+{
+	EveCheckCmdBuffer(sizeof(cmd));
+	EveWriteData32(RAM_CMD + eve_cmd_fifo,cmd);
+	EveUpdateCmdFifo(sizeof(cmd));
+}
+
+
+void EveFlashWriteExecution(uint32_t dest, uint32_t num, uint8_t *data)
+{
+	uint32_t i, send_data32=0;
+
+	EveSendCmd(CMD_FLASHWRITE);
+	EveSendCmd(dest);
+	EveSendCmd(num);
+
+	for (i = 0; i < num; i=i+4){
+	  send_data32 = *data++;
+	  send_data32 |= (*data++) << 8;
+	  send_data32 |= (*data++) << 16;
+	  send_data32 |= (*data++) << 24;
+	  EveSendCmd(send_data32);
+	}
+
+
+}
+
+void EveClearCache(){
+
+	EveSendCmd(CMD_CLEARCACHE);
+	EveWaitCmdFifoEmpty();
+}
+
+void EveFlashWrite(uint32_t addr, uint8_t *data, uint32_t num){
+
+	EveFlashWriteExecution( addr, num, data);
+	EveWaitCmdFifoEmpty();
+}
+
+
+void EveFlashRead(uint32_t dest, uint32_t addr, uint32_t num){
+
+	EveSendCmd(CMD_FLASHREAD);
+	EveSendCmd(dest);
+	EveSendCmd(addr);
+	EveSendCmd(num);
 
 }
 
