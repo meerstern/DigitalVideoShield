@@ -44,7 +44,6 @@
 //#define EVE_RESOLUTION_QVGA 	//320x240
 
 
-
 // BT81X Memory R/W Bit
 #define MEM_WRITE  			  0x80     // BT81X Host Memory Write
 #define MEM_READ  			  0x00     // BT81X Host Memory Read
@@ -65,7 +64,7 @@
 #define SLEEP 			       0x42 // Place BT81X in Sleep (clk off)
 #define PWRDOWN 		       0x50 // Place BT81X in Power Down (core off)
 #define CLKEXT  			   0x44 // Select external clock source
-#define CLKINT  			   0x48 // Select external clock source
+#define CLKINT  			   0x48 // Select Internal clock source
 #define CLK48M  			   0x62 // Select 48MHz PLL
 #define CLK36M  			   0x61 // Select 36MHz PLL
 #define CORERST 			   0x68	// Reset core - all registers default
@@ -435,7 +434,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1920
 	#define USR_VSIZE		1080
 	#define USR_CSPREAD		0
@@ -453,7 +452,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1600
 	#define USR_VSIZE		1200
 	#define USR_CSPREAD		0
@@ -472,7 +471,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1280
 	#define USR_VSIZE		1024
 	#define USR_CSPREAD		0
@@ -481,16 +480,16 @@
 #endif
 
 #ifdef EVE_RESOLUTION_WXGA
-	#define USR_HCYCLE		1380
+	#define USR_HCYCLE		1420
 	#define USR_HOFFSET		122
 	#define USR_HSYNC0		0
 	#define	USR_HSYNC1		62
-	#define USR_VCYCLE		804
+	#define USR_VCYCLE		834
 	#define USR_VOFFSET		20
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1280
 	#define USR_VSIZE		768
 	#define USR_CSPREAD		0
@@ -499,16 +498,16 @@
 #endif
 
 #ifdef EVE_RESOLUTION_XGA
-	#define USR_HCYCLE		1280
+	#define USR_HCYCLE		1220
 	#define USR_HOFFSET		102
 	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		82
-	#define USR_VCYCLE		804
-	#define USR_VOFFSET		30
+	#define	USR_HSYNC1		62
+	#define USR_VCYCLE		864
+	#define USR_VOFFSET		42
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1024
 	#define USR_VSIZE		768
 	#define USR_CSPREAD		0
@@ -526,7 +525,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		8
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1024
 	#define USR_VSIZE		600
 	#define USR_CSPREAD		0
@@ -544,7 +543,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		6
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		800
 	#define USR_VSIZE		600
 	#define USR_CSPREAD		0
@@ -562,7 +561,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		3
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		800
 	#define USR_VSIZE		480
 	#define USR_CSPREAD		0
@@ -580,7 +579,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		3
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		640
 	#define USR_VSIZE		480
 	#define USR_CSPREAD		0
@@ -598,7 +597,7 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		2
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		480
 	#define USR_VSIZE		272
 	#define USR_CSPREAD		0
@@ -616,13 +615,14 @@
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		2
 	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL		1
+	#define USR_PCLK_POL	1
 	#define USR_HSIZE		320
 	#define USR_VSIZE		240
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
 	#define USR_PCLK		2
 #endif
+
 
 
 // Exported functions
@@ -640,5 +640,14 @@ void EveSetCPUFrq();
 void EveSetResolution();
 void EveDemo();
 
+void EveFlashReadArray(uint32_t dest, uint32_t addr, uint32_t num, uint8_t *data);
+uint8_t EveFlashReadState();
+void EveFlashEraseAll();
+void EveFlashWrite(uint32_t addr, uint8_t *data, uint32_t num);
+void EveFlashRead(uint32_t dest, uint32_t addr, uint32_t num);
+void EveWaitCmdFifoEmpty();
+void EveCheckFlashState();
+void EveSendCmd (uint32_t cmd);
+void EveClearCache();
 
-
+void EveFlashTest();
