@@ -103,7 +103,7 @@ void setup()
 
 
     //LCD visible
-    wr8(REG_PCLK, USR_PCLK);
+    wr8(REG_PCLK, 2);
     delay(300);
   
     Serial.println("Hello");
@@ -139,7 +139,34 @@ void loop()
     wr32(RAM_DL + 56, END());
     wr32(RAM_DL + 60, DISPLAY()); // display the image
     wr8(REG_DLSWAP, DLSWAP_FRAME);
-    HAL_Delay(3000);
+    delay(3000);
+
+    //Display Hello
+    wr32(RAM_DL+0,   CLEAR_COLOR_RGB(255,255,255));
+    wr32(RAM_DL + 4, CLEAR(1, 1, 1)); // clear screen
+    wr32(RAM_DL + 8, COLOR_RGB(1, 1, 1)); // change colour to red
+    wr32(RAM_DL + 12, BEGIN(BITMAPS)); // start drawing bitmaps
+    wr32(RAM_DL + 16, VERTEX2II(220, 110, 31, 'C')); // ascii C
+    wr32(RAM_DL + 20, VERTEX2II(248, 110, 31, 'r')); // ascii r
+    wr32(RAM_DL + 24, VERTEX2II(264, 110, 31, 'e')); // ascii e
+    wr32(RAM_DL + 28, VERTEX2II(290, 110, 31, 's')); // ascii s
+    wr32(RAM_DL + 32, VERTEX2II(315, 110, 31, 'c')); // ascii c
+    wr32(RAM_DL + 36, VERTEX2II(338, 110, 31, 'e')); // ascii e
+    wr32(RAM_DL + 40, VERTEX2II(360, 110, 31, 'n')); // ascii n
+    wr32(RAM_DL + 44, VERTEX2II(384, 110, 31, 't')); // ascii t
+    wr32(RAM_DL + 48, END());
+    wr32(RAM_DL + 52, COLOR_RGB(255, 255, 0)); // 
+    wr32(RAM_DL + 56, POINT_SIZE(320)); // set point size to 20 pixels in radius
+    wr32(RAM_DL + 60, BEGIN(POINTS)); // start drawing points
+    wr32(RAM_DL + 64, VERTEX2II(192, 133, 0, 0)); // red point
+    wr32(RAM_DL + 68, COLOR_RGB(255, 255, 255)); // 
+    wr32(RAM_DL + 72, POINT_SIZE(320)); // set point size to 20 pixels in radius
+    wr32(RAM_DL + 76, BEGIN(POINTS)); // start drawing points
+    wr32(RAM_DL + 80, VERTEX2II(200, 125, 0, 0)); // red point
+    wr32(RAM_DL + 84, END());
+    wr32(RAM_DL + 88, DISPLAY()); // display the image
+    wr8(REG_DLSWAP, DLSWAP_FRAME);
+    delay(3000);
 
 
 }
