@@ -53,6 +53,8 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
   
 機能詳細については[BT816][1]を参照ください。  
 
+## 販売サイト
+  * [こちらのサイト][2]で販売しております。
 
 <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/DVS_1.JPG" width="360">
 
@@ -67,5 +69,8 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
 
 
 [1]: https://www.ftdichip.com/Products/ICs/BT815_6.html "*1"
+
+[2]: https://www.kadenken.com/shopdetail/000000000884/ct150/page1/order/ "*2"
+
 
 MIT Lisense
