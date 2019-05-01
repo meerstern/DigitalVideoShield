@@ -5,7 +5,8 @@
  * Released under the MIT license 				         *
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
- * 19/02/27 v1.1 Fix initialization stability      *
+ * 19/02/27 v1.1 Fix initialization stability      *  
+ * 19/04/28 v1.2 Add Co-Processor command          *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Eve IO Port Def	*/
@@ -24,10 +25,7 @@
 #define CHIP_ID_RESET 0x7C
 
 /* Eve Mode Def	*/
-//#define EVE_RESOLUTION_HD		//1920x1080//Not Supported, but may work.
-//#define EVE_RESOLUTION_UXGA		//1600x1200//Not Supported, but may work.
-//#define EVE_RESOLUTION_SXGA		//1280x1024//Not Supported, but may work.
-//#define EVE_RESOLUTION_WXGA 	//1280x768 //Not Supported, but may work.
+//#define EVE_RESOLUTION_WXGA 	//1280x720 //Not Supported, but may work.
 //#define EVE_RESOLUTION_XGA 	//1024x768 //Not Supported, but may work.
 //#define EVE_RESOLUTION_WSVGA 	//1024x600 //Not Supported, but may work.
 //#define EVE_RESOLUTION_SVGA 	//800x600
@@ -419,131 +417,76 @@
 
 
 // Resolution Definitions
-#ifdef EVE_RESOLUTION_HD
-	#define USR_HCYCLE		2120
-	#define USR_HOFFSET		102
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		32
-	#define USR_VCYCLE		1262
-	#define USR_VOFFSET		20
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
-	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL	1
-	#define USR_HSIZE		1920
-	#define USR_VSIZE		1080
-	#define USR_CSPREAD		0
-	#define USR_DITHER		0
-	#define USR_PCLK		1
-#endif
-
-#ifdef EVE_RESOLUTION_UXGA
-	#define USR_HCYCLE		1680
-	#define USR_HOFFSET		102
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		82
-	#define USR_VCYCLE		1302
-	#define USR_VOFFSET		20
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
-	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL	1
-	#define USR_HSIZE		1600
-	#define USR_VSIZE		1200
-	#define USR_CSPREAD		0
-	#define USR_DITHER		0
-	#define USR_PCLK		1
-#endif
-
-
-#ifdef EVE_RESOLUTION_SXGA
-	#define USR_HCYCLE		1380
-	#define USR_HOFFSET		122
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		62
-	#define USR_VCYCLE		1102
-	#define USR_VOFFSET		20
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
-	#define USR_SWIZZLE		0
-	#define USR_PCLK_POL	1
-	#define USR_HSIZE		1280
-	#define USR_VSIZE		1024
-	#define USR_CSPREAD		0
-	#define USR_DITHER		0
-	#define USR_PCLK		1
-#endif
-
 #ifdef EVE_RESOLUTION_WXGA
-	#define USR_HCYCLE		1380
-	#define USR_HOFFSET		122
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		62
-	#define USR_VCYCLE		804
-	#define USR_VOFFSET		20
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
+	#define USR_HCYCLE		1280
+	#define USR_HOFFSET		368
+	#define USR_HSYNC0		72
+	#define	USR_HSYNC1		152
+	#define USR_VCYCLE		750
+	#define USR_VOFFSET		30
+	#define USR_VSYNC0		3
+	#define USR_VSYNC1		27
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
 	#define USR_HSIZE		1280
-	#define USR_VSIZE		768
+	#define USR_VSIZE		720
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		1
+  #define USR_PCLK   1
 #endif
 
 #ifdef EVE_RESOLUTION_XGA
 	#define USR_HCYCLE		1280
-	#define USR_HOFFSET		102
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		82
+	#define USR_HOFFSET		256
+	#define USR_HSYNC0		40
+	#define	USR_HSYNC1		128
 	#define USR_VCYCLE		804
-	#define USR_VOFFSET		30
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
+	#define USR_VOFFSET		36
+	#define USR_VSYNC0		3
+	#define USR_VSYNC1		33
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
-	#define USR_HSIZE		1024
-	#define USR_VSIZE		768
+	#define USR_HSIZE		  1024
+	#define USR_VSIZE		  768
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		1
+  #define USR_PCLK      1
 #endif
 
 #ifdef EVE_RESOLUTION_WSVGA
 	#define USR_HCYCLE		1280
-	#define USR_HOFFSET		102
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		62
+	#define USR_HOFFSET		256
+	#define USR_HSYNC0		40
+	#define	USR_HSYNC1		128
 	#define USR_VCYCLE		674
-	#define USR_VOFFSET		40
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		8
+	#define USR_VOFFSET		74
+	#define USR_VSYNC0		13
+	#define USR_VSYNC1		61
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
-	#define USR_HSIZE		1024
-	#define USR_VSIZE		600
+	#define USR_HSIZE		  1024
+	#define USR_VSIZE		  600
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		1
+  #define USR_PCLK      1
 #endif
 
 #ifdef EVE_RESOLUTION_SVGA
 	#define USR_HCYCLE		1048
-	#define USR_HOFFSET		94
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		56
+	#define USR_HOFFSET		248
+	#define USR_HSYNC0		40
+	#define	USR_HSYNC1		152
 	#define USR_VCYCLE		640
-	#define USR_VOFFSET		36
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		6
+	#define USR_VOFFSET		40
+	#define USR_VSYNC0		13
+	#define USR_VSYNC1		27
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
-	#define USR_HSIZE		800
-	#define USR_VSIZE		600
+	#define USR_HSIZE		  800
+	#define USR_VSIZE		  600
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		2
+  #define USR_PCLK      2
 #endif
 
 #ifdef EVE_RESOLUTION_WVGA
@@ -561,52 +504,52 @@
 	#define USR_VSIZE		480
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		2
+  #define USR_PCLK      2
 #endif
 
 #ifdef EVE_RESOLUTION_VGA
 	#define USR_HCYCLE		800
-	#define USR_HOFFSET		80
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		60
+	#define USR_HOFFSET		160
+	#define USR_HSYNC0		16
+	#define	USR_HSYNC1		112
 	#define USR_VCYCLE		525
-	#define USR_VOFFSET		32
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		3
+	#define USR_VOFFSET		45
+	#define USR_VSYNC0		10
+	#define USR_VSYNC1		35
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
 	#define USR_HSIZE		640
 	#define USR_VSIZE		480
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		2
+  #define USR_PCLK      2
 #endif
 
 #ifdef EVE_RESOLUTION_WQVGA
 	#define USR_HCYCLE		548
-	#define USR_HOFFSET		90
-	#define USR_HSYNC0		0
-	#define	USR_HSYNC1		11
-	#define USR_VCYCLE		320
-	#define USR_VOFFSET		22
-	#define USR_VSYNC0		0
-	#define USR_VSYNC1		2
+	#define USR_HOFFSET		43
+	#define USR_HSYNC0		6
+	#define	USR_HSYNC1		32
+	#define USR_VCYCLE		292
+	#define USR_VOFFSET		12
+	#define USR_VSYNC0		3
+	#define USR_VSYNC1		7
 	#define USR_SWIZZLE		0
 	#define USR_PCLK_POL	1
 	#define USR_HSIZE		480
 	#define USR_VSIZE		272
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		2
+  #define USR_PCLK      2
 #endif
 
 #ifdef EVE_RESOLUTION_QVGA
 	#define USR_HCYCLE		408
-	#define USR_HOFFSET		70
+	#define USR_HOFFSET		68
 	#define USR_HSYNC0		0
 	#define	USR_HSYNC1		10
-	#define USR_VCYCLE		263
-	#define USR_VOFFSET		13
+	#define USR_VCYCLE		262
+	#define USR_VOFFSET		18
 	#define USR_VSYNC0		0
 	#define USR_VSYNC1		2
 	#define USR_SWIZZLE		0
@@ -615,7 +558,26 @@
 	#define USR_VSIZE		240
 	#define USR_CSPREAD		0
 	#define USR_DITHER		0
-	#define USR_PCLK		2
+  #define USR_PCLK      2
 #endif
 
 
+enum{
+  EVE_FONT_A_size1=16,
+  EVE_FONT_A_size2=18,
+  EVE_FONT_A_size3=20,
+  EVE_FONT_A_size4,
+  EVE_FONT_A_size5,
+  EVE_FONT_A_size6,
+  EVE_FONT_A_size7,
+  EVE_FONT_A_size8,
+  EVE_FONT_B_size1=26,
+  EVE_FONT_B_size2,
+  EVE_FONT_B_size3,
+  EVE_FONT_B_size4,
+  EVE_FONT_B_size5,
+  EVE_FONT_B_size6,
+  EVE_FONT_B_size7,
+  EVE_FONT_B_size8,
+  EVE_FONT_B_size9
+};
