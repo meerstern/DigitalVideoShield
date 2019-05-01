@@ -6,6 +6,7 @@
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
  * 19/02/27 v1.1 Fix initialization stability      *
+ * 19/04/28 v1.2 Add Co-Processor command          *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
@@ -349,6 +350,7 @@
 #define OPT_CENTERX          0x0200UL
 #define OPT_CENTERY          0x0400UL
 #define OPT_FLAT             0x0100UL
+#define OPT_FORMAT           4096UL
 #define OPT_MONO             1UL
 #define OPT_NOBACK           0x1000UL
 #define OPT_NODL             2UL
@@ -359,6 +361,7 @@
 #define OPT_NOTICKS          0x2000UL
 #define OPT_RIGHTX           0x0800UL
 #define OPT_SIGNED           0x0100UL
+
 #define PALETTED             8UL
 #define POINTS               2UL
 #define PLAYCOLOR            0x00A0A080
@@ -624,6 +627,26 @@
 #endif
 
 
+enum{
+	EVE_FONT_A_size1=16,
+	EVE_FONT_A_size2=18,
+	EVE_FONT_A_size3=20,
+	EVE_FONT_A_size4,
+	EVE_FONT_A_size5,
+	EVE_FONT_A_size6,
+	EVE_FONT_A_size7,
+	EVE_FONT_A_size8,
+	EVE_FONT_B_size1=26,
+	EVE_FONT_B_size2,
+	EVE_FONT_B_size3,
+	EVE_FONT_B_size4,
+	EVE_FONT_B_size5,
+	EVE_FONT_B_size6,
+	EVE_FONT_B_size7,
+	EVE_FONT_B_size8,
+	EVE_FONT_B_size9
+};
+
 
 // Exported functions
 void EveWriteCmd(uint8_t cmd);
@@ -633,21 +656,46 @@ uint32_t EveReadData32(uint32_t addr);
 void EveWriteData8(uint32_t addr, uint8_t data8);
 void EveWriteData16(uint32_t addr, uint16_t data8);
 void EveWriteData32(uint32_t addr, uint32_t data8);
+void EveWriteData32BufInc(uint32_t addr, uint32_t data32);
+void EveWriteData8BufInc(uint32_t addr, uint32_t data32);
+void EveWriteData32BufWrite();
+void EveWriteData16BufWrite();
+void EveWriteDataBufReset();
+void EveWaitCmdFifoEmpty();
+void EveSendCmd (uint32_t cmd);
+void EveClearCache();
+
+// Initialization
 void EveInit();
 uint16_t EveCheckStatus();
 uint8_t  EveReadChipID();
 void EveSetCPUFrq();
 void EveSetResolution();
 void EveDemo();
+void EveDemo2();
 
+// Flash
 void EveFlashReadArray(uint32_t dest, uint32_t addr, uint32_t num, uint8_t *data);
 uint8_t EveFlashReadState();
 void EveFlashEraseAll();
 void EveFlashWrite(uint32_t addr, uint8_t *data, uint32_t num);
 void EveFlashRead(uint32_t dest, uint32_t addr, uint32_t num);
-void EveWaitCmdFifoEmpty();
 void EveCheckFlashState();
-void EveSendCmd (uint32_t cmd);
-void EveClearCache();
-
 void EveFlashTest();
+
+// Co-Processor Command
+void EveWriteStringData(uint16_t x, uint16_t y, uint16_t font, uint16_t options, const char* str);
+void EveWriteButton(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char* str);
+void EveWriteGauge(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t major, uint16_t minor, uint16_t val, uint16_t range);
+void EveWriteToggle(int16_t x, int16_t y, int16_t w, int16_t font, uint16_t options, uint16_t state, const char *str);
+void EveWriteProgress(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t range);
+void EveWriteKeys(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char *str);
+void EveWriteDial(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t val);
+void EveWriteSync();
+void EveWriteSpinner(int16_t x, int16_t y, uint16_t style, uint16_t scale);
+void EveAddStringData(const char *str);
+void EveCmdRomFont(uint32_t font, uint32_t slot);
+void EveResetRomFont();
+void EveWriteNumberData(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n);
+void EveWriteClock(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t h, uint16_t m, uint16_t s, uint16_t ms);
+void EveRecoverCoProcessor();
