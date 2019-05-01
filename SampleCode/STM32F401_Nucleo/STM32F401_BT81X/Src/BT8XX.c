@@ -6,12 +6,27 @@
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
  * 19/02/27 v1.1 Fix initialization stability      *
+ * 19/04/28 v1.2 Add Co-Processor command          *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "BT8XX.h"
+#include "string.h"
+#include "stdlib.h"
+
+
+#define RED		0xff0000UL
+#define ORANGE	0xffa500UL
+#define GREEN	0x00ff00UL
+#define BLUE	0x0000ffUL
+#define BLUE_1	0x5dade2L
+#define YELLOW	0xffff00UL
+#define PINK	0xff00ffUL
+#define PURPLE	0x800080UL
+#define WHITE	0xffffffUL
+#define BLACK	0x000000UL
 
 uint16_t eve_cmd_fifo;
-
+uint32_t eve_buf_size;
 
 void EveInit(){
 
@@ -30,6 +45,10 @@ void EveInit(){
 
 }
 
+
+void EveWriteDataBufReset(){
+	eve_buf_size=0;
+}
 uint8_t  EveReadChipID(){
 
 	return EveReadData8(REG_ID);
@@ -73,10 +92,11 @@ void EveSetResolution(){
 	EveWriteData16(REG_GPIOX,	0xFFFF);
 
 	//Clear Dispaly
-	EveWriteData32(RAM_DL+0,	CLEAR_COLOR_RGB(255,255,255));
-	EveWriteData32(RAM_DL+4,	CLEAR(1,1,1));
-	EveWriteData32(RAM_DL+8,	DISPLAY());
-	EveWriteData32(REG_CMD_WRITE,12);
+	EveWriteDataBufReset();
+	EveWriteData32BufInc(RAM_DL,	CLEAR_COLOR_RGB(255,255,255));
+	EveWriteData32BufInc(RAM_DL,	CLEAR(1,1,1));
+	EveWriteData32BufInc(RAM_DL,	DISPLAY());
+	EveWriteData32BufWrite();
 
 	//Display swap
 	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
@@ -84,44 +104,273 @@ void EveSetResolution(){
 
 	//LCD visible
 	EveWriteData8(REG_PCLK, USR_PCLK);
-	HAL_Delay(800);
+	HAL_Delay(100);
 }
-
-
 
 void EveDemo(){
 
 
 	//Load Logo
-	EveWriteData32(RAM_CMD+0,	CMD_LOGO);
-	//EveWriteData32(RAM_CMD+4,0) ;
-	EveWriteData32(REG_CMD_WRITE,4) ;
+	EveWriteData32BufInc(RAM_CMD,	CMD_LOGO);
+	EveWriteData32BufWrite();
 	HAL_Delay(1);
 	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
 	HAL_Delay(2000);
 
 	//Display Hello
-	EveWriteData32(RAM_DL+0,   CLEAR_COLOR_RGB(255,255,255));
-	EveWriteData32(RAM_DL + 4, CLEAR(1, 1, 1)); // clear screen
-	EveWriteData32(RAM_DL + 8, COLOR_RGB(1, 1, 1)); // change colour to red
-	EveWriteData32(RAM_DL + 12, BEGIN(BITMAPS)); // start drawing bitmaps
-	EveWriteData32(RAM_DL + 16, VERTEX2II(220, 110, 31, 'H')); // ascii H
-	EveWriteData32(RAM_DL + 20, VERTEX2II(248, 110, 31, 'E')); // ascii E
-	EveWriteData32(RAM_DL + 24, VERTEX2II(272, 110, 31, 'L')); // ascii L
-	EveWriteData32(RAM_DL + 28, VERTEX2II(299, 110, 31, 'L')); // ascii L
-	EveWriteData32(RAM_DL + 32, VERTEX2II(326, 110, 31, 'O')); // ascii O
-	EveWriteData32(RAM_DL + 36, END());
-	EveWriteData32(RAM_DL + 40, COLOR_RGB(255, 0, 0)); // change colour to red
-	EveWriteData32(RAM_DL + 44, POINT_SIZE(320)); // set point size to 20 pixels in radius
-	EveWriteData32(RAM_DL + 48, BEGIN(POINTS)); // start drawing points
-	EveWriteData32(RAM_DL + 52, VERTEX2II(192, 133, 0, 0)); // red point
-	EveWriteData32(RAM_DL + 56, END());
-	EveWriteData32(RAM_DL + 60, DISPLAY()); // display the image
+	EveWriteDataBufReset();
+	EveWriteData32BufInc(RAM_DL, CLEAR_COLOR_RGB(255,255,255));
+	EveWriteData32BufInc(RAM_DL, CLEAR(1, 1, 1));
+	EveWriteData32BufInc(RAM_DL, COLOR_RGB(1, 1, 1));
+	EveWriteData32BufInc(RAM_DL, BEGIN(BITMAPS)); // start drawing bitmaps
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(220, 110, 31, 'C')); // ascii C
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(248, 110, 31, 'r')); // ascii r
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(264, 110, 31, 'e')); // ascii e
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(290, 110, 31, 's')); // ascii s
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(315, 110, 31, 'c')); // ascii c
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(338, 110, 31, 'e')); // ascii e
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(360, 110, 31, 'n')); // ascii n
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(384, 110, 31, 't')); // ascii t
+	EveWriteData32BufInc(RAM_DL, END());
+	EveWriteData32BufInc(RAM_DL, COLOR_RGB(255, 255, 0));
+	EveWriteData32BufInc(RAM_DL, POINT_SIZE(320));
+	EveWriteData32BufInc(RAM_DL, BEGIN(POINTS));
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(192, 133, 0, 0));
+	EveWriteData32BufInc(RAM_DL, COLOR_RGB(255, 255, 255));
+	EveWriteData32BufInc(RAM_DL, POINT_SIZE(320));
+	EveWriteData32BufInc(RAM_DL, BEGIN(POINTS));
+	EveWriteData32BufInc(RAM_DL, VERTEX2II(200, 125, 0, 0));
+	EveWriteData32BufInc(RAM_DL, END());
+	EveWriteData32BufInc(RAM_DL, DISPLAY());
 	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
 	HAL_Delay(3000);
 
 }
 
+void EveDemo2(){
+
+	//Load Logo
+	EveWriteDataBufReset();
+	EveWriteData32BufInc(RAM_CMD,	CMD_LOGO);
+	EveWriteData32BufWrite();
+	HAL_Delay(1);
+	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
+	HAL_Delay(200);
+
+	//EveRecoverCoProcessor();
+	EveWaitCmdFifoEmpty();
+	EveSendCmd(CMD_DLSTART);
+	EveSendCmd(CLEAR_COLOR_RGB(255,255,255));
+	EveSendCmd( CLEAR(1, 1, 1));
+	EveSendCmd(COLOR_RGB(220, 1, 240));
+	//Number
+	EveWriteNumberData(220,200,EVE_FONT_B_size6,0,120);
+	EveSendCmd(COLOR_RGB(180, 180, 240));
+	//Clock
+	EveWriteClock(120,120,100,0,10,10,20,3);
+	EveSendCmd(COLOR_RGB(20, 50, 140));
+	//String
+	EveWriteStringData(200,350,EVE_FONT_B_size6,0,"Digital Video Shield");
+	EveSendCmd(COLOR_RGB(20, 100, 40));
+	//String
+	EveWriteStringData(200,400,EVE_FONT_B_size6,0,"by Crescent");
+	EveSendCmd(COLOR_RGB(220, 200, 240));
+	//Gauge
+	EveWriteGauge(400,120,100,0,80,0,10,100);
+	//Toggle
+	EveWriteToggle(550,120,50,EVE_FONT_B_size4,0,1,"ON");
+	//Button
+	EveWriteButton(550,50,80,40,EVE_FONT_B_size4,0,"ON");
+	//Progress
+	EveWriteProgress(550,200,50,30,0,20,100);
+	EveSendCmd(COLOR_RGB(1, 1, 1));
+	//Spinner
+	EveWriteSpinner(700, 150, 0, 0);
+	//Display Data
+	EveSendCmd(DISPLAY());
+	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
+	EveWaitCmdFifoEmpty();
+	while(1);
+}
+
+
+void EveWriteClock(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t h, uint16_t m, uint16_t s, uint16_t ms)
+{
+	EveSendCmd(CMD_CLOCK);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)options<<16)|(r&0xffff)));
+	EveSendCmd((((uint32_t)m<<16)|(h&0xffff)));
+	EveSendCmd((((uint32_t)ms<<16)|(s&0xffff)));
+	EveWaitCmdFifoEmpty();
+}
+
+
+void EveWriteButton(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char* str){
+
+	EveSendCmd(CMD_BUTTON);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)h<<16)|(w&0xffff)));
+	EveSendCmd((((uint32_t)options<<16)|(font&0xffff)));
+	EveAddStringData(str);
+
+}
+
+void EveWriteGauge(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t major, uint16_t minor, uint16_t val, uint16_t range){
+
+	EveSendCmd(CMD_GAUGE);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)options<<16)|(r&0xffff)));
+	EveSendCmd((((uint32_t)minor<<16)|(major&0xffff)));
+	EveSendCmd((((uint32_t)range<<16)|(val&0xffff)));
+}
+
+
+void EveWriteToggle(int16_t x, int16_t y, int16_t w, int16_t font, uint16_t options, uint16_t state, const char *str){
+
+	EveSendCmd(CMD_TOGGLE);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)font<<16)|(w&0xffff)));
+	EveSendCmd((((uint32_t)state<<16)|options));
+	EveAddStringData(str);
+}
+
+void EveAddStringData(const char *str){
+
+	uint16_t dataptr, i, strptr;
+	uint16_t length = strlen(str);
+
+	if(!length)return;
+
+	uint32_t* data = (uint32_t*) calloc((length / 4) + 1, sizeof(uint32_t));
+
+	strptr = 0;
+	for(dataptr=0; dataptr<(length/4); ++dataptr, strptr=strptr+4){
+	  data[dataptr] = (uint32_t)str[strptr+3]<<24 | (uint32_t)str[strptr+2]<<16 | (uint32_t)str[strptr+1]<<8 | (uint32_t)str[strptr];
+	}
+
+	for(i=0; i<(length%4); ++i, ++strptr){
+	  data[dataptr] |= (uint32_t)str[strptr] << (i*8);
+	}
+
+	for(i = 0; i <= length/4; i++){
+	  EveSendCmd(data[i]);
+	}
+	free(data);
+}
+
+
+
+void EveWriteStringData(uint16_t x, uint16_t y, uint16_t font, uint16_t options, const char* str){
+
+  uint16_t dataptr, i, strptr;
+  uint16_t length = strlen(str);
+
+  if(!length)return;
+
+  uint32_t* data = (uint32_t*) calloc((length / 4) + 1, sizeof(uint32_t));
+
+  strptr = 0;
+  for(dataptr=0; dataptr<(length/4); ++dataptr, strptr=strptr+4){
+	  data[dataptr] = (uint32_t)str[strptr+3]<<24 | (uint32_t)str[strptr+2]<<16 | (uint32_t)str[strptr+1]<<8 | (uint32_t)str[strptr];
+  }
+
+  for(i=0; i<(length%4); ++i, ++strptr){
+	  data[dataptr] |= (uint32_t)str[strptr] << (i*8);
+  }
+
+  EveSendCmd(CMD_TEXT);
+  EveSendCmd(((uint32_t)y << 16) | x );
+  EveSendCmd(((uint32_t)options << 16) | font );
+
+  for(i = 0; i <= length/4; i++){
+	  EveSendCmd(data[i]);
+  }
+
+  free(data);
+}
+
+void EveWriteNumberData(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n){
+
+	EveSendCmd(CMD_NUMBER);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)options<<16)|(font&0xffff)));
+	EveSendCmd(n);
+	EveWaitCmdFifoEmpty();
+
+}
+
+void EveWriteSpinner(int16_t x, int16_t y, uint16_t style, uint16_t scale){
+
+	EveSendCmd(CMD_SPINNER);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)scale<<16)|(style&0xffff)));
+
+}
+
+void EveWriteKeys(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char *str){
+
+	EveSendCmd(CMD_KEYS);
+	EveSendCmd(((uint32_t)y<<16)|(x & 0xffff));
+	EveSendCmd(((uint32_t)h<<16)|(w&0xffff));
+	EveSendCmd(((uint32_t)options<<16)|(font&0xffff));
+	EveAddStringData(str);
+
+}
+
+void EveWriteDial(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t val){
+
+	EveSendCmd(CMD_DIAL);
+	EveSendCmd((((uint32_t)y<<16)|(x & 0xffff)));
+	EveSendCmd((((uint32_t)options<<16)|(r&0xffff)));
+	EveSendCmd(val);
+
+}
+
+void EveWriteProgress(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t range){
+
+	EveSendCmd(CMD_PROGRESS);
+	EveSendCmd(((uint32_t)y<<16)|(x & 0xffff));
+	EveSendCmd(((uint32_t)h<<16)|(w&0xffff));
+	EveSendCmd(((uint32_t)val<<16)|(options&0xffff));
+	EveSendCmd(range);
+
+}
+
+void EveWriteSync(){
+
+	EveSendCmd(CMD_SYNC);
+	EveWaitCmdFifoEmpty();
+}
+
+void EveCmdRomFont(uint32_t font, uint32_t slot){
+
+  	EveSendCmd(CMD_ROMFONT);
+	EveSendCmd(font);
+	EveSendCmd(slot);
+	EveWaitCmdFifoEmpty();
+}
+
+void EveResetRomFont(){
+
+  	EveSendCmd(CMD_RESETFONTS);
+	EveWaitCmdFifoEmpty();
+}
+
+
+
+void EveRecoverCoProcessor(){
+
+	uint32_t res;
+	res=EveReadData32(REG_COPRO_PATCH_PTR);
+	EveWriteData32(REG_CPURESET,1);
+	EveWriteData32(REG_CMD_READ,0);
+	EveWriteData32(REG_CMD_WRITE,0);
+	EveWriteData32(REG_CMD_DL,0);
+	EveWriteData32(REG_CPURESET,0);
+	EveWriteData32(REG_COPRO_PATCH_PTR,res);
+	EveWriteData8(REG_PCLK, USR_PCLK);
+	HAL_Delay(10);
+}
 
 void EveFlashTest(){
 
@@ -393,6 +642,45 @@ void EveWriteData16(uint32_t addr, uint16_t data16)
 
 }
 
+void EveWriteData32BufInc(uint32_t addr, uint32_t data32)
+{
+
+	addr=addr+eve_buf_size;
+	EveWriteData32( addr,  data32);
+	eve_buf_size=eve_buf_size+4;
+
+}
+
+void EveWriteData16BufInc(uint32_t addr, uint32_t data32){
+
+	addr=addr+eve_buf_size;
+	EveWriteData32( addr,  data32);
+	eve_buf_size=eve_buf_size+2;
+
+}
+
+void EveWriteData8BufInc(uint32_t addr, uint32_t data32){
+
+	addr=addr+eve_buf_size;
+	EveWriteData32( addr,  data32);
+	eve_buf_size=eve_buf_size+1;
+
+}
+
+void EveWriteData32BufWrite()
+{
+
+	EveWriteData32( REG_CMD_WRITE,  eve_buf_size);
+
+}
+
+void EveWriteData16BufWrite(){
+
+	EveWriteData16( REG_CMD_WRITE,  eve_buf_size);
+
+}
+
+
 
 void EveWriteData32(uint32_t addr, uint32_t data32)
 {
@@ -412,3 +700,5 @@ void EveWriteData32(uint32_t addr, uint32_t data32)
 	EVE_CS_1();
 
 }
+
+
