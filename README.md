@@ -36,13 +36,23 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
 ※上記の信号ポートは5V耐圧  
 
 ## 表示例
-　サンプルデモコード(ビデオエンジンBT816の内蔵アニメーション)を800x480のHDMIディスプレイに表示した例  
+　サンプルデモコード(ビデオエンジンBT816の内蔵アニメーション)を800x480のディスプレイに表示した例  
  
  <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/img3.JPG" width="360">
 
 　サンプルデモコード(ビデオエンジンBT816の内蔵アニメーション)を800x480出力でHDディスプレイに表示した例  
  
  <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/IPS235.jpg" width="360">
+ 
+ Co-Processorエンジンによる内蔵Widgetsを800x480のディスプレイに表示した例  
+ 
+ <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/img4.JPG" width="360">
+ ※内蔵Widgetsはテキスト、ボタン、時計、プログレスバー、スライダー、トグルボタンなどが内蔵されています。  
+   
+   数行のC/C++コードの記述で任意の表示をすることができます。     
+   ボタン、スライダー等の入力イベントを使用する場合は別途、抵抗膜方式のパネルと配線が必要です。  
+
+
 
 ## 注意点
   * Arduinoピンヘッダは別売です。    
