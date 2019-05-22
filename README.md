@@ -1,5 +1,5 @@
 # DigitalVideoSheild
-Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI displays.
+Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI displays.
 
 ## 概要 
   * SPIからDVI出力(HDMIコネクタ)するArduinoシールドです。  
@@ -38,15 +38,15 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
 ## 表示例
 　サンプルデモコード(ビデオエンジンBT816の内蔵アニメーション)を800x480のディスプレイに表示した例  
  
- <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/img3.JPG" width="360">
+ <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/img3.JPG" width="360">
 
 　サンプルデモコード(ビデオエンジンBT816の内蔵アニメーション)を800x480出力でHDディスプレイに表示した例  
  
- <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/IPS235.jpg" width="360">
+ <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/IPS235.jpg" width="360">
  
  Co-Processorエンジンによる内蔵Widgetsを800x480のディスプレイに表示した例  
  
- <img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/img4.JPG" width="360">
+ <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/img4.JPG" width="360">
  ※内蔵Widgetsはテキスト、ボタン、時計、プログレスバー、スライダー、トグルボタンなどが内蔵されています。  
    
    数行のC/C++コードの記述で任意の表示をすることができます。     
@@ -66,16 +66,16 @@ Digital Video Sheild for Arduino. The board enables Arduino to connect HDMI/DVI 
 ## 販売サイト
   * [こちらのサイト][2]で販売しております。
 
-<img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/DVS_1.JPG" width="360">
+<img src="https://github.com/meerstern/DigitalVideoShield/blob/master/DVS_1.JPG" width="360">
 
 
-<img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/DVS_2.JPG" width="360">
+<img src="https://github.com/meerstern/DigitalVideoShield/blob/master/DVS_2.JPG" width="360">
 
 
-<img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/DVS_arduino.JPG" width="360">
+<img src="https://github.com/meerstern/DigitalVideoShield/blob/master/DVS_arduino.JPG" width="360">
 
 
-<img src="https://github.com/meerstern/DigitalVideoSheild/blob/master/DVS_nucleo.JPG" width="360">
+<img src="https://github.com/meerstern/DigitalVideoShield/blob/master/DVS_nucleo.JPG" width="360">
 
 
 [1]: https://www.ftdichip.com/Products/ICs/BT815_6.html "*1"
