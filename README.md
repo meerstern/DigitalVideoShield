@@ -2,7 +2,7 @@
 Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI displays.
 
 ## 概要 
-  * SPIからDVI出力(HDMIコネクタ)するArduinoシールドです。  
+  * SPIからDVI映像出力(HDMIコネクタ)を行うArduinoシールドです。  
   * FTDI製ビデオエンジンBT816とDVIトランスミッタTFP410/SiI164を搭載しています。
   
 ## 特徴 
