@@ -3,7 +3,7 @@ Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI
 
 ## 概要 
   * SPIからDVI出力(HDMIコネクタ)するArduinoシールドです。  
-  * FTDI製ビデオエンジンBT816とDVIトランスミッタTFP410を搭載しています。
+  * FTDI製ビデオエンジンBT816とDVIトランスミッタTFP410/SiI164を搭載しています。
   
 ## 特徴 
   * Arduinoから任意の文字列や図形、画像をDVI/HDMIディスプレイに描画することができます。  
@@ -64,7 +64,7 @@ Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI
 機能詳細については[BT816][1]を参照ください。  
 
 ## 販売サイト
-  * [こちらのサイト][2]で販売しております。
+  * [家電のケンちゃん][2]、 [スイッチサイエンス][3]で販売しております。
 
 <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/DVS_1.JPG" width="360">
 
@@ -81,6 +81,8 @@ Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI
 [1]: https://www.ftdichip.com/Products/ICs/BT815_6.html "*1"
 
 [2]: https://www.kadenken.com/shopdetail/000000000884/ct150/page1/order/ "*2"
+
+[3]: https://www.switch-science.com/catalog/5516/ "*3"
 
 
 MIT Lisense
