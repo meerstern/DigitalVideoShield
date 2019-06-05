@@ -40,6 +40,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
@@ -47,6 +48,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "BT8XX.h"
+#include "fatfs.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,6 +96,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -115,10 +118,28 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_SPI1_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 
   printf("Initialize Success!!\r\n");
   EveInit();
+
+#ifdef ENABLE_SD
+  if(f_mount(&fs, "", 0) != FR_OK)
+	  printf("SD Mount ERR\n\r");
+  HAL_Delay(10);
+  if(f_open(&fp, "test.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) != FR_OK)
+	  printf("SD Write ERR\n\r");
+  HAL_Delay(10);
+  f_puts("SD Card Test\n", &fp);
+  HAL_Delay(10);
+  if(f_close(&fp) != FR_OK)
+	  printf("SD File Close ERR\n\r");
+  HAL_Delay(10);
+  if(f_mount(NULL, "", 1) != FR_OK)
+	  printf("SD Unmount ERR\n\r");
+#endif
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,7 +150,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  uint8_t data[4];
+
 	  uint16_t cnt;
 	  cnt=0;
 
@@ -146,9 +167,6 @@ int main(void)
 
 
 
-	  EveWriteData32(RAM_CMD+0,	CMD_FLASHDETACH);
-	  EveWriteData32(REG_CMD_WRITE,4) ;
-
 	  cnt=0;
 	  while(0x0!=EveCheckStatus()){
 		  cnt++;
@@ -163,9 +181,12 @@ int main(void)
 	  EveSetCPUFrq();
 
 	  EveSetResolution();
+	  //EveCheckFlashState();
+	  //EveFlashTest();
 
+	  EveDemo3();
 	  while(1){
-		  EveDemo();
+
 	  }
 
 
@@ -184,11 +205,11 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /**Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage 
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
@@ -203,7 +224,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /**Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;

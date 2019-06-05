@@ -7,12 +7,13 @@
  * 19/02/16 v1.0 Initial Release                   *
  * 19/02/27 v1.1 Fix initialization stability      *
  * 19/04/28 v1.2 Add Co-Processor command          *
+ * 19/06/05 v1.3 Add Jpeg Load command		       *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "BT8XX.h"
 #include "string.h"
 #include "stdlib.h"
-
+#include "stdbool.h"
 
 #define RED		0xff0000UL
 #define ORANGE	0xffa500UL
@@ -25,8 +26,31 @@
 #define WHITE	0xffffffUL
 #define BLACK	0x000000UL
 
+#define IMAGE_NUM       4
+#define LINE_LIMIT      35     // max 33
+#define COPY_SIZE 		64UL
+
+typedef struct {
+  char     filename[16]; // Filenames 8.3 ex. XYZ.bmp
+  uint16_t sizeX;
+  uint16_t sizeY;
+  uint32_t format;
+  uint32_t flashaddress;
+}FileFormat;
+
+FileFormat flashfiles[IMAGE_NUM];        //FlashFiles in attached flash
+
+
 uint16_t eve_cmd_fifo;
 uint32_t eve_buf_size;
+
+#ifdef ENABLE_SD
+	FATFS fs;
+	FATFS *fsp = &fs;
+	FIL fp;
+	FRESULT fres;
+	bool existsSDcard = false;
+#endif
 
 void EveInit(){
 
@@ -91,6 +115,8 @@ void EveSetResolution(){
 	EveWriteData16(REG_GPIOX_DIR,	0xFFFF);
 	EveWriteData16(REG_GPIOX,	0xFFFF);
 
+	//EveCmdSetRotate(EVE_ROTATE_180deg);
+
 	//Clear Dispaly
 	EveWriteDataBufReset();
 	EveWriteData32BufInc(RAM_DL,	CLEAR_COLOR_RGB(255,255,255));
@@ -102,11 +128,14 @@ void EveSetResolution(){
 	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
 
 
+
+
 	//LCD visible
 	EveWriteData8(REG_PCLK, USR_PCLK);
 	HAL_Delay(100);
 }
 
+//Simple Demo
 void EveDemo(){
 
 
@@ -147,6 +176,7 @@ void EveDemo(){
 
 }
 
+// Co-Processor Demo
 void EveDemo2(){
 
 	//Load Logo
@@ -193,6 +223,22 @@ void EveDemo2(){
 	while(1);
 }
 
+
+// Bitmap demo
+void EveDemo3(){
+
+	//Load Logo
+	EveWriteDataBufReset();
+	EveWriteData32BufInc(RAM_CMD,	CMD_LOGO);
+	EveWriteData32BufWrite();
+	HAL_Delay(1);
+	while(EveReadData16(REG_CMD_WRITE) != EveReadData16(REG_CMD_READ));
+
+	printf("Demo Start \n\r");
+	EveLoadJpgFile("logo.jpg", RAM_G, 800, 480);
+	printf("Demo OK \n\r");
+
+}
 
 void EveWriteClock(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t h, uint16_t m, uint16_t s, uint16_t ms)
 {
@@ -356,6 +402,116 @@ void EveResetRomFont(){
 	EveWaitCmdFifoEmpty();
 }
 
+void EveCmdSetRotate(uint32_t r){
+
+  	EveSendCmd(CMD_SETROTATE);
+	EveSendCmd(r);
+	EveWaitCmdFifoEmpty();
+}
+
+void EveCmdSetBitmap(uint32_t addr, uint16_t fmt, uint16_t width, uint16_t height){
+
+	EveSendCmd(CMD_SETBITMAP);
+	EveSendCmd(addr);
+	EveSendCmd(((uint32_t)width << 16) | fmt);
+	EveSendCmd((uint32_t)height);
+}
+
+
+void EveLoadJpgFile(char *filename, uint32_t addr, uint32_t width, uint32_t hight){
+
+	uint32_t 	filesize=0;
+	uint32_t 	filesectors=0;
+	uint32_t 	sectorsspace=0;
+
+#ifdef ENABLE_SD
+
+	 if(f_mount(fsp, "", 0) != FR_OK)
+		  printf("SD Mount ERR\n\r");
+
+	fres = f_open(&fp, filename, FA_READ | FA_OPEN_EXISTING);
+	if (fres != FR_OK){
+		if(fres == FR_NO_FILE)
+			printf("Could not find the file \"%s\"\r\n", filename);
+		else
+			printf("fres error, %d\r\n", fres);
+		f_mount(NULL, "", 0);
+		return;
+	}
+	else{
+
+		filesize = f_size(&fp);
+		filesectors = filesize/0x1000;
+
+		if(filesize % 0x1000)   filesectors++;
+		sectorsspace= ( 0x100000 - (addr - RAM_G)) / 0x1000;
+
+
+		if ( filesectors > sectorsspace ){
+			printf("Data size is over!\n\r");
+			return;
+		}
+
+		printf("FileName:\"%s\" Size:%ld \r\n", filename,filesize);
+	}
+
+
+	printf("Read SD & RAM Write Start\n\r");
+
+	uint16_t m=0;
+	EveWaitCmdFifoEmpty();
+	EveSendCmd(CMD_LOADIMAGE);
+	EveSendCmd(addr);
+	EveSendCmd(0);//Options
+
+	while(f_eof(&fp) == 0){
+		char str_readbuf[4] = {'\0'};
+		uint32_t readbuf[4];
+
+		uint32_t dat=0;
+		uint16_t br;
+
+		f_read(&fp,str_readbuf,sizeof(str_readbuf),(unsigned int*)&br);
+		if(br==0)break;
+
+		readbuf[0]=(uint32_t)str_readbuf[0];
+		readbuf[1]=(uint32_t)str_readbuf[1];
+		readbuf[2]=(uint32_t)str_readbuf[2];
+		readbuf[3]=(uint32_t)str_readbuf[3];
+
+		dat =	 (uint32_t)(readbuf[0]<<0)
+				+(uint32_t)(readbuf[1]<<8)
+				+(uint32_t)(readbuf[2]<<16)
+				+(uint32_t)(readbuf[3]<<24);
+		EveSendCmd(dat);
+
+		m++;
+	}
+
+	printf("Read SD & RAM Write End\n\r");
+
+
+	if(f_close(&fp) != FR_OK)
+		  printf("SD File Close ERR\n\r");
+	if(f_mount(NULL, "", 1) != FR_OK)
+		  printf("SD Unmount ERR\n\r");
+
+#endif
+
+	EveWaitCmdFifoEmpty();
+	EveSendCmd(CMD_DLSTART);
+	EveSendCmd(CLEAR(1, 1, 1));
+	EveCmdSetBitmap(RAM_G, RGB565, width, hight);
+	EveSendCmd(BEGIN(BITMAPS));
+	EveSendCmd(VERTEX2II(0, 0, 0, 0));//Position, Angle
+	EveSendCmd(END());
+	EveSendCmd(DISPLAY());
+	EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);
+	EveWaitCmdFifoEmpty();
+
+
+
+}
 
 
 void EveRecoverCoProcessor(){
@@ -372,14 +528,15 @@ void EveRecoverCoProcessor(){
 	HAL_Delay(10);
 }
 
+
 void EveFlashTest(){
 
 	uint8_t rdat[256];
 	uint8_t wdat[256];
 
 	EveFlashEraseAll();
-//	EveFlashReadArray(0, 0, 256, rdat);
-//	printf("Flash Read Data0: %d %d %d\n\r",rdat[0],rdat[1],rdat[2]);
+	EveFlashReadArray(0, 0, 256, rdat);
+	printf("Flash Read Data0: %d %d %d\n\r",rdat[0],rdat[1],rdat[2]);
 	wdat[0]=1;
 	wdat[1]=2;
 	wdat[2]=3;
@@ -389,6 +546,7 @@ void EveFlashTest(){
 	printf("Flash Read Data1: %d %d %d\n\r",rdat[0],rdat[1],rdat[2]);
 
 }
+
 
 void EveReadMemory (uint32_t addr, uint8_t *buffer, uint32_t len){
 
@@ -434,8 +592,53 @@ void EveFlashEraseAll(){
 
 	EveSendCmd(CMD_FLASHERASE);
 	//EveWaitCmdFifoEmpty();
+	printf("Flash All Erased!\n\r");
 
 }
+
+void EveFlashAttach(){
+
+	EveSendCmd(CMD_FLASHATTACH);
+	EveWaitCmdFifoEmpty();
+	uint8_t status = EveFlashReadState();
+	if (status != 2)printf("Flash is NOT attached\n\r");
+
+}
+
+void EveFlashDetach(){
+
+	EveSendCmd(CMD_FLASHDETACH);
+	EveWaitCmdFifoEmpty();
+
+	uint8_t status = EveFlashReadState();
+	if (status != 1)printf("Flash is NOT detached\n\r");
+
+}
+
+void EveFlashFastMode(){
+
+	uint32_t res;
+	char msg[60];
+	//EveWaitCmdFifoEmpty();
+	EveCheckCmdBuffer(sizeof(uint32_t));
+	EveWriteData32(RAM_CMD + eve_cmd_fifo,CMD_FLASHFAST);
+	res = EveReadData32(RAM_CMD + eve_cmd_fifo+4);
+	EveWriteData16(REG_CMD_WRITE,RAM_CMD+eve_cmd_fifo+8);
+
+	if(res!=0){
+		if(res==0xE001)		strcpy(msg,"flash is not supported");
+		else if(res==0xE002)strcpy(msg,"no header detected in sector 0 – is flash blank?");
+		else if(res==0xE003)strcpy(msg,"sector 0 data failed integrity check");
+		else if(res==0xE004)strcpy(msg,"device/blob mismatch – was correct blob loaded?");
+		else if(res==0xE004)strcpy(msg,"failed full-speed test – check board wiring");
+		else				strcpy(msg,"something wrong");
+		printf("Flash Fast Mode Err: 0x%lX, %s \n\r",res,msg);
+	}	//EveWaitCmdFifoEmpty();
+
+	uint8_t status = EveFlashReadState();
+	if (status != 3)printf("Flash is NOT Fast Mode (Not Full Mode)\n\r");
+}
+
 
 
 void EveUpdateCmdFifo(uint32_t count){
@@ -443,6 +646,8 @@ void EveUpdateCmdFifo(uint32_t count){
 	eve_cmd_fifo  = (eve_cmd_fifo + count) & 4095;
 	eve_cmd_fifo = (eve_cmd_fifo + 3) & 0xFFC;
 	EveWriteData16(REG_CMD_WRITE,eve_cmd_fifo);
+	//EveWriteData16(REG_CMDB_WRITE,eve_cmd_fifo);
+
 }
 
 
@@ -455,11 +660,9 @@ void EveWaitCmdFifoEmpty(){
 
 uint16_t EveGetCmdFifoSpace(){
 
-	uint16_t fullness,val;
-
-	fullness = (eve_cmd_fifo-EveReadData16(REG_CMD_READ))&4095;
-	val = (4096 - 4) - fullness;
-
+	uint16_t val;
+	val=EveReadData16(REG_CMDB_SPACE) & 0xFFFF;
+	//printf("Space:%d \n\r",val);
 	return val;
 
 }
@@ -473,11 +676,18 @@ void EveCheckCmdBuffer(uint32_t cnt){
 }
 
 
-void EveSendCmd (uint32_t cmd)
-{
+void EveSendCmd (uint32_t cmd){
+
 	EveCheckCmdBuffer(sizeof(cmd));
 	EveWriteData32(RAM_CMD + eve_cmd_fifo,cmd);
 	EveUpdateCmdFifo(sizeof(cmd));
+}
+
+void EveRecieveRes (uint32_t *res){
+
+	EveCheckCmdBuffer(sizeof(uint32_t));
+	res =(uint32_t*)EveReadData32(RAM_CMD + eve_cmd_fifo);
+	EveUpdateCmdFifo(sizeof(uint32_t));
 }
 
 
@@ -520,6 +730,17 @@ void EveFlashRead(uint32_t dest, uint32_t addr, uint32_t num){
 	EveSendCmd(addr);
 	EveSendCmd(num);
 
+}
+
+uint32_t EveWriteBlockRAM(uint32_t addr, const uint8_t *buff, uint32_t count){
+
+  uint8_t index;
+  uint32_t write_addr = addr;
+
+  for (index = 0; index < count; index++){
+    EveWriteData8(write_addr++, buff[index]);
+  }
+  return (write_addr);
 }
 
 
