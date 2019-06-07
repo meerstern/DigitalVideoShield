@@ -1,18 +1,35 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * *
- * FTDI EVE Firmware for BT81X  				           *
- * Copyright (c) 2019  							               *
- * K.Watanabe,Crescent 							               *
- * Released under the MIT license 				         *
+ * FTDI EVE Firmware for BT81X  		           *
+ * Copyright (c) 2019  						       *
+ * K.Watanabe,Crescent 						       *
+ * Released under the MIT license 			       *
  * http://opensource.org/licenses/mit-license.php  *
  * 19/02/16 v1.0 Initial Release                   *
  * 19/02/27 v1.1 Fix initialization stability      *  
  * 19/04/28 v1.2 Add Co-Processor command          *
+ * 19/06/05 v1.3 Add Jpeg Load command		       *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
+#ifndef __BT81X_H
+#define __BT81X_H
 
-/* Eve IO Port Def	*/
-#define irqPin 4        // Interrupt 
-#define pwrPin 3        // PD_N
-#define csPin  7
+#include <stdio.h>  
+#include <stdlib.h>
+#include <string.h>
+ 
+ /* En/Dis SD and File System */
+#define ENABLE_SD
+#undef DISPLAY 
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  
+extern const int8_t  sdcsPin;    
+extern const int8_t  irqPin;          // Interrupt 
+extern const int8_t  pwrPin;          // PD_N
+extern const int8_t  csPin;   
 
 /* Chip Identification  */
 #define CHIP_ID_REG   0xC0000
@@ -354,17 +371,39 @@
 #define RECTS                9UL
 #define REPEAT               1UL
 #define REPLACE              2UL
+#define ARGB1555			 0UL
 #define RGB332               4UL
+#define ARGB2				 5UL
+#define ARGB4				 6UL
 #define RGB565               7UL
 #define SRC_ALPHA            2UL
 #define TEXT8X8              9UL
 #define TEXTVGA              10UL
+#define PALETTED565			 14UL
+#define PALETTED4444	     15UL
+#define PALETTED8			 16UL
 #define TOUCHMODE_CONTINUOUS 3UL
 #define TOUCHMODE_FRAME      2UL
 #define TOUCHMODE_OFF        0UL
 #define TOUCHMODE_ONESHOT    1UL
 #define ULAW_SAMPLES         1UL
 #define ZERO                 0UL
+
+// Bitmap Layout Format Definitions
+#define COMPRESSED_RGBA_ASTC_4x4_KHR   37808  // 8.00
+#define COMPRESSED_RGBA_ASTC_5x4_KHR   37809  // 6.40
+#define COMPRESSED_RGBA_ASTC_5x5_KHR   37810  // 5.12
+#define COMPRESSED_RGBA_ASTC_6x5_KHR   37811  // 4.27
+#define COMPRESSED_RGBA_ASTC_6x6_KHR   37812  // 3.56
+#define COMPRESSED_RGBA_ASTC_8x5_KHR   37813  // 3.20
+#define COMPRESSED_RGBA_ASTC_8x6_KHR   37814  // 2.67
+#define COMPRESSED_RGBA_ASTC_8x8_KHR   37815  // 2.56
+#define COMPRESSED_RGBA_ASTC_10x5_KHR  37816  // 2.13
+#define COMPRESSED_RGBA_ASTC_10x6_KHR  37817  // 2.00
+#define COMPRESSED_RGBA_ASTC_10x8_KHR  37818  // 1.60
+#define COMPRESSED_RGBA_ASTC_10x10_KHR 37819  // 1.28
+#define COMPRESSED_RGBA_ASTC_12x10_KHR 37820  // 1.07
+#define COMPRESSED_RGBA_ASTC_12x12_KHR 37821  // 0.89
 
 // BT81X Macros
 #define RGB(r, g, b)         ((((r) << 16) | (g) << 8) | (b))
@@ -581,3 +620,92 @@ enum{
   EVE_FONT_B_size8,
   EVE_FONT_B_size9
 };
+
+enum{
+	EVE_ROTATE_0deg,
+	EVE_ROTATE_180deg,
+	EVE_ROTATE_90deg,
+	EVE_ROTATE_270deg,
+	EVE_ROTATE_0deg_mirror,
+	EVE_ROTATE_180deg_mirror,
+	EVE_ROTATE_90deg_mirror,
+	EVE_ROTATE_270deg_mirror
+};
+
+// Exported functions
+void EveWriteCmd(uint8_t cmd);
+uint8_t EveReadData8(uint32_t addr);
+uint16_t EveReadData16(uint32_t addr);
+uint32_t EveReadData32(uint32_t addr);
+void EveWriteData8(uint32_t addr, uint8_t data8);
+void EveWriteData16(uint32_t addr, uint16_t data8);
+void EveWriteData32(uint32_t addr, uint32_t data8);
+void EveWriteData32BufInc(uint32_t addr, uint32_t data32);
+void EveWriteData8BufInc(uint32_t addr, uint32_t data32);
+void EveWriteData32BufWrite();
+void EveWriteData16BufWrite();
+void EveWriteDataBufReset();
+void EveWaitCmdFifoEmpty();
+void EveSendCmd (uint32_t cmd);
+void EveClearCache();
+void EveRecieveRes (uint32_t *res);
+void EveCheckCmdBuffer(uint32_t cnt);
+void EveUpdateCmdFifo(uint32_t count);
+
+
+// Initialization
+void EveInit();
+uint16_t EveCheckStatus();
+uint8_t  EveReadChipID();
+void EveSetCPUFrq();
+void EveSetResolution();
+void EveDemo();
+void EveDemo2();
+void EveDemo3();
+
+// Flash
+void EveFlashReadArray(uint32_t dest, uint32_t addr, uint32_t num, uint8_t *data);
+uint8_t EveFlashReadState();
+void EveFlashEraseAll();
+void EveFlashWrite(uint32_t addr, uint8_t *data, uint32_t num);
+void EveFlashRead(uint32_t dest, uint32_t addr, uint32_t num);
+void EveCheckFlashState();
+void EveFlashTest();
+void EveFlashAttach();
+void EveFlashDetach();
+void EveFlashFastMode();
+
+
+//Bitmap
+void EveLoadFlashFile2Ram();
+void EveDrawBitmapImage();
+void EveCmdSetBitmap(uint32_t addr, uint16_t fmt, uint16_t width, uint16_t height);
+uint32_t EveWriteBlockRAM(uint32_t addr, const uint8_t *buff, uint32_t count);
+void EveLoadJpgFile(char *filename, uint32_t addr, uint32_t width, uint32_t hight);
+
+// Co-Processor Command
+void EveWriteStringData(uint16_t x, uint16_t y, uint16_t font, uint16_t options, const char* str);
+void EveWriteButton(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char* str);
+void EveWriteGauge(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t major, uint16_t minor, uint16_t val, uint16_t range);
+void EveWriteToggle(int16_t x, int16_t y, int16_t w, int16_t font, uint16_t options, uint16_t state, const char *str);
+void EveWriteProgress(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t options, uint16_t val, uint16_t range);
+void EveWriteKeys(int16_t x, int16_t y, int16_t w, int16_t h, int16_t font, uint16_t options, const char *str);
+void EveWriteDial(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t val);
+void EveWriteSync();
+void EveWriteSpinner(int16_t x, int16_t y, uint16_t style, uint16_t scale);
+void EveAddStringData(const char *str);
+void EveCmdRomFont(uint32_t font, uint32_t slot);
+void EveResetRomFont();
+void EveWriteNumberData(int16_t x, int16_t y, int16_t font, uint16_t options, int32_t n);
+void EveWriteClock(int16_t x, int16_t y, int16_t r, uint16_t options, uint16_t h, uint16_t m, uint16_t s, uint16_t ms);
+void EveRecoverCoProcessor();
+void EveCmdSetRotate(uint32_t r);
+void usrdelay(uint16_t t);
+
+extern uint32_t buf_size;
+extern uint16_t cmd_fifo;
+
+#ifdef __cplusplus
+}
+#endif
+#endif
