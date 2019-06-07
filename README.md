@@ -49,9 +49,11 @@ Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI
  <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/img4.JPG" width="360">
  ※内蔵Widgetsはテキスト、ボタン、時計、プログレスバー、スライダー、トグルボタンなどが内蔵されています。  
    
-   数行のC/C++コードの記述で任意の表示をすることができます。     
+   数行のコードの記述で任意の表示をすることができます。     
    ボタン、スライダー等の入力イベントを使用する場合は別途、抵抗膜方式のパネルと配線が必要です。  
-
+   
+ <img src="https://github.com/meerstern/DigitalVideoShield/blob/master/img5.JPG" width="360">
+ ※SDカードから800x480ピクセルサイズのJPG/PNGをBT816のRAMに読み込ませて800x480のディスプレイに表示した例  
 
 
 ## 注意点
