@@ -184,7 +184,9 @@ int main(void)
 	  //EveCheckFlashState();
 	  //EveFlashTest();
 
-	  EveDemo3();
+	  EveDemo();
+//	  EveDemo2();
+//	  EveDemo3();
 	  while(1){
 
 	  }

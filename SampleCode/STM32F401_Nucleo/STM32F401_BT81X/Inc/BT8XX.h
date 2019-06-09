@@ -386,7 +386,6 @@
 #define REPEAT               1UL
 #define REPLACE              2UL
 #define ARGB1555			 0UL
-
 #define RGB332               4UL
 #define ARGB2				 5UL
 #define ARGB4				 6UL
@@ -748,6 +747,12 @@ void EveDrawBitmapImage();
 void EveCmdSetBitmap(uint32_t addr, uint16_t fmt, uint16_t width, uint16_t height);
 uint32_t EveWriteBlockRAM(uint32_t addr, const uint8_t *buff, uint32_t count);
 void EveLoadJpgFile(char *filename, uint32_t addr, uint32_t width, uint32_t hight);
+void EveCmdSetScale(float sx, float sy);
+void EveCmdSetAngle(float deg);
+void EveCmdLoadIdentify();
+void EveCmdSetMatrix();
+void EveCmdRotateAround(uint32_t cx, uint32_t cy, float deg, float scale);
+
 
 // Co-Processor Command
 void EveWriteStringData(uint16_t x, uint16_t y, uint16_t font, uint16_t options, const char* str);
