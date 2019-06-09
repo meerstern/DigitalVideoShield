@@ -134,8 +134,9 @@ void loop()
 //  EveDemo3();
 //  while(1);  
   EveDemo();
-  //EveRecoverCoProcessor();
-  EveDemo2();  
+//  //EveRecoverCoProcessor();
+//  EveDemo2();  
+//  EveDemo3();  
   //EveRecoverCoProcessor();
 	
 
@@ -341,7 +342,12 @@ void EveLoadJpgFile(char *filename, uint32_t addr, uint32_t width, uint32_t high
   EveSendCmd(CLEAR(1, 1, 1));
   EveCmdSetBitmap(RAM_G, RGB565, width, hight);
   EveSendCmd(BEGIN(BITMAPS));
-  EveSendCmd(VERTEX2II(0, 0, 0, 0));//Position, Angle
+
+//  EveCmdLoadIdentify();
+//  EveCmdRotateAround(400,240, 180, 0.5);//Scale and Angle
+//  EveCmdSetMatrix();
+
+  EveSendCmd(VERTEX2II(0, 0, 0, 0));//Position
   EveSendCmd(END());
   EveSendCmd(DISPLAY());
   EveWriteData8(REG_DLSWAP, DLSWAP_FRAME);

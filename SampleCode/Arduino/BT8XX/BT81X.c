@@ -327,12 +327,56 @@ void EveResetRomFont(){
 	EveWaitCmdFifoEmpty();
 }
 
+//Rotate for Screen
 void EveCmdSetRotate(uint32_t r){
 
   EveSendCmd(CMD_SETROTATE);
 	EveSendCmd(r);
 	EveWaitCmdFifoEmpty();
 }
+
+void EveCmdLoadIdentify(){
+  EveSendCmd(CMD_LOADIDENTITY);
+}
+
+void EveCmdSetMatrix(){
+  EveSendCmd(CMD_SETMATRIX);
+}
+
+//Scale bitmap or object
+void EveCmdSetScale(float sx, float sy){
+
+  float ssx=sx*65536.0f;
+  float ssy=sy*65536.0f;
+
+  EveSendCmd(CMD_SCALE);
+  EveSendCmd((uint32_t)ssx);
+  EveSendCmd((uint32_t)ssy);
+  //EveWaitCmdFifoEmpty();
+
+}
+
+//Rotate bitmap or object
+void EveCmdSetAngle(float deg){
+
+  float r = deg* 65536.0f/360.0f;
+  EveSendCmd(CMD_ROTATE);
+  EveSendCmd((uint32_t)r);
+  //EveWaitCmdFifoEmpty();
+
+}
+
+void EveCmdRotateAround(uint32_t cx, uint32_t cy, float deg, float scale){
+
+  float r = deg* 65536.0f/360.0f;
+  float ss=scale*65536.0f;
+  EveSendCmd(CMD_ROTATEAROUND);
+  EveSendCmd(cx);//Center of rotate or scale X
+  EveSendCmd(cy);//Center of rotate or scale Y
+  EveSendCmd((uint32_t)r);
+  EveSendCmd((uint32_t)ss);
+}
+
 
 void EveCmdSetBitmap(uint32_t addr, uint16_t fmt, uint16_t width, uint16_t height){
 
