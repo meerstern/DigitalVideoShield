@@ -1,4 +1,4 @@
-# DigitalVideoSheild
+# DigitalVideoShield
 Digital Video Shield for Arduino. The shield enables Arduino to connect HDMI/DVI displays.
 
 ## 概要 
